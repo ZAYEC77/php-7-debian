@@ -1,9 +1,11 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 
+if [[ $(whoami) != *root* ]]; then SUDO="sudo"; fi;
+
 # Dependencies
-sudo apt-get update
-sudo apt-get install -y \
+$SUDO apt-get update
+$SUDO apt-get install -y \
     build-essential \
     pkg-config \
     git-core \
@@ -21,17 +23,18 @@ sudo apt-get install -y \
     libpspell-dev \
     libreadline-dev
 
-sudo mkdir /usr/local/php7
+$SUDO mkdir /usr/local/php7
 
-git clone https://github.com/php/php-src.git
+git clone -b PHP-7.0.0 --depth=1 https://github.com/php/php-src.git
 cd php-src
-git checkout PHP-7.0.1
+git checkout PHP-7.0.3
 git pull
 ./buildconf --force
 
 CONFIGURE_STRING="--prefix=/usr/local/php7 \
                   --with-config-file-scan-dir=/usr/local/php7/etc/conf.d \
                   --without-pear \
+                  --with-iconv=/usr/local/libiconv\
                   --enable-bcmath \
                   --with-bz2 \
                   --enable-calendar \
@@ -71,4 +74,4 @@ CONFIGURE_STRING="--prefix=/usr/local/php7 \
 ./configure $CONFIGURE_STRING
 
 make
-sudo make install
+$SUDO make install
